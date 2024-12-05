@@ -10,7 +10,7 @@ public class MainMenuManager : MonoBehaviour
         var buttonImage = button.GetComponent<UnityEngine.UI.Image>();
         if (buttonImage != null)
         {
-            buttonImage.color = Color.yellow; // Change to yellow on hover
+            buttonImage.color = Color.red; // Change to yellow on hover
         }
     }
 
