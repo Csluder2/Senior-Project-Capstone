@@ -9,7 +9,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
     private int selectedCount = 0; // Number of selected characters
     private bool[] isSelected; // Track which characters are selected
-
+    private int[] SelectedCharacters = new int[2];
     void Start()
     {
         // Initialize the isSelected array with the same length as the number of buttons
@@ -64,6 +64,9 @@ public class CharacterSelectionManager : MonoBehaviour
         // Check for Enter key after two characters are selected
         if (selectedCount == 2 && Input.GetKeyDown(KeyCode.Return))
         {
+            PlayerPrefs.SetInt("Player1Character", SelectedCharacters[0]);
+            PlayerPrefs.SetInt("Player2Character", SelectedCharacters[1]);
+            PlayerPrefs.Save();
             // Load the next scene (replace "NextScene" with your actual scene name)
             UnityEngine.SceneManagement.SceneManager.LoadScene("FightingStage");
         }
