@@ -28,13 +28,18 @@ public class MainMenuManager : MonoBehaviour
     // Play Button: Loads the CharacterSelect scene
     public void OnPlayButtonClick()
     {
-        SceneManager.LoadScene("CharacterSelect");
+        SceneManager.LoadScene("FightingStage");
     }
 
     // Settings Button: Loads the Settings scene
     public void OnSettingsButtonClick()
     {
         SceneManager.LoadScene("Settings");
+    }
+    // Instruction Button: Loads Instruction scene
+    public void OnInstructionsButtonClick()
+    {
+        SceneManager.LoadScene("Instructions");
     }
 
     // Quit Button: Exits the game
