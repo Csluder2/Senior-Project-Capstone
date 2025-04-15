@@ -16,8 +16,8 @@ public class FightStartCountdown : MonoBehaviour
     IEnumerator StartCountdown()
     {
         // Disable Player Movement
-        player1.GetComponent<PlayerCombat>().enabled = false;
-        player2.GetComponent<PlayerCombat>().enabled = false;
+        player1.GetComponent<OnlinePlayerCombat>().enabled = false;
+        player2.GetComponent<OnlinePlayerCombat>().enabled = false;
 
         for (int i = (int)countdownTime; i > 0; i--)
         {
