@@ -28,7 +28,7 @@ public class MainMenuManager : MonoBehaviour
     // Play Button: Loads the CharacterSelect scene
     public void OnPlayButtonClick()
     {
-        SceneManager.LoadScene("FightingStage");
+        SceneManager.LoadScene("OfflineOnline");
     }
 
     // Settings Button: Loads the Settings scene
