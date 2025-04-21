@@ -7,13 +7,18 @@ using System.Collections;
 
 
 
-public class OnlinePlayerCombat : NetworkBehaviour
+public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
 {
     private Animator animator;
     private NetworkMecanimAnimator netAnimator;
     private Rigidbody rb;
+    private FusionConnection.PlayerInputData accumulatedInput;
+    private bool resetInput;
 
-    private NetworkRigidbody body;
+    [SerializeField] private NetworkCharacterController ncc;
+    [SerializeField] private float speed = 5f;
+    [SerializeField] private float jump = 5f;
+
 
     [Networked] private int comboStep { get; set; }
     private float comboTimer = 0f;
@@ -25,20 +30,19 @@ public class OnlinePlayerCombat : NetworkBehaviour
     public Transform opponent;
 
     public float moveSpeed = 5f;
-    public float jumpForce = 7f;
     private bool isJumping = false;
-    private bool isBlocking = false;
+    public bool isBlocking = false;
     private bool isAttacking = false;
     private bool isCrouched = false;
-
     private bool isRoundOver = false;
+    [Networked] private NetworkButtons PreviousButtons { get; set; }
 
     public override void Spawned()
     {
         animator = GetComponent<Animator>();
         netAnimator = GetComponent<NetworkMecanimAnimator>();
         rb = GetComponent<Rigidbody>();
-        body = GetComponent<NetworkRigidbody>();
+
         comboStep = 0;
         animator.SetInteger("ComboStep", comboStep);
         if (Object.HasInputAuthority)
@@ -54,6 +58,7 @@ public class OnlinePlayerCombat : NetworkBehaviour
 
     private IEnumerator WaitForOpponent()
     {
+
         while (true)
         {
             var players = FindObjectsOfType<OnlinePlayerCombat>();
@@ -69,7 +74,7 @@ public class OnlinePlayerCombat : NetworkBehaviour
                 }
             }
 
-            yield return new WaitForSeconds(0.1f); // check again after delay
+            yield return new WaitForSeconds(1.5f); // check again after delay
         }
     }
 
@@ -77,19 +82,21 @@ public class OnlinePlayerCombat : NetworkBehaviour
     {
         if (!HasStateAuthority)
             return;
-        if (rb.isKinematic == true)
-        {
-            rb.isKinematic = false;
-        }
         if (GetInput(out FusionConnection.PlayerInputData input))
         {
+
+
             HandleJumping(input);
             HandleMovement(input);
             HandleBlocking(input);
             HandleAttack(input);
+
         }
         HandleFacingDirection();
-
+        if (!isJumping && ncc != null)
+        {
+            ncc.Move(Vector3.zero);
+        }
     }
 
     void HandleFacingDirection()
@@ -108,7 +115,7 @@ public class OnlinePlayerCombat : NetworkBehaviour
 
     void HandleAttack(FusionConnection.PlayerInputData input)
     {
-        if (isJumping || isBlocking) return;
+        if (isJumping) return;
 
         bool attacking = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.Attack);
         if (attacking)
@@ -144,10 +151,10 @@ public class OnlinePlayerCombat : NetworkBehaviour
 
     void HandleMovement(FusionConnection.PlayerInputData input)
     {
-        if (isBlocking || isJumping || isAttacking) return;
+        if (!ncc.Grounded || isAttacking) return;
 
 
-        float moveDirection = 0;
+        float moveDirection = 1f;
         float opponentDirection = Mathf.Sign(opponent.position.x - transform.position.x);
         bool moveLeft = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.MoveLeft);
         bool moveRight = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.MoveRight);
@@ -198,8 +205,8 @@ public class OnlinePlayerCombat : NetworkBehaviour
             isCrouched = false;
             animator.SetBool("Crouch", false);
         }
-
-        rb.linearVelocity = new Vector3(moveDirection, 0, 0);
+        Vector3 HorizontalMovement = new Vector3(moveDirection, 0f, 0) * Runner.DeltaTime;
+        ncc.Move(HorizontalMovement);
     }
 
 
@@ -211,58 +218,78 @@ public class OnlinePlayerCombat : NetworkBehaviour
         bool moveRight = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.MoveRight);
         float opponentDirection = Mathf.Sign(opponent.position.x - transform.position.x);
 
-        if (jumping)
+        if (jumping && ncc.Grounded)
         {
-            isJumping = true;
             if (moveRight)
             {
+
                 if (opponentDirection > 0)
                 {
                     netAnimator.SetTrigger("ForwardFlip");
-                    rb.linearVelocity = new Vector3(moveSpeed, jumpForce, 0) * Runner.DeltaTime;
+
                 }
                 else
                 {
                     netAnimator.SetTrigger("BackFlip");
-                    rb.linearVelocity = new Vector3(moveSpeed, jumpForce, 0);
+
                 }
+
             }
             else if (moveLeft)
             {
+
                 if (opponentDirection > 0)
                 {
                     netAnimator.SetTrigger("BackFlip");
-                    rb.linearVelocity = new Vector3(-moveSpeed, jumpForce, 0);
+
                 }
                 else
                 {
                     netAnimator.SetTrigger("ForwardFlip");
-                    rb.linearVelocity = new Vector3(-moveSpeed, jumpForce, 0);
+
                 }
+
             }
             else
             {
                 netAnimator.SetTrigger("Jump");
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, 0);
+
+
             }
+            ncc.Jump();
+
+        }
+        if (!ncc.Grounded)
+        {
+            float airspeed = 8f;
+            float moveDir = 0f;
+            if (moveLeft)
+                moveDir = -2f;
+            if (moveRight)
+                moveDir = 2f;
+
+            Vector3 airMovement = new Vector3(moveDir * airspeed, 0f, 0f);
+            ncc.Move(airMovement * Runner.DeltaTime);
+        }
+
+        if (ncc.Grounded)
+        {
+            isJumping = false;
+            netAnimator.SetTrigger("Land");
         }
     }
 
     void HandleBlocking(FusionConnection.PlayerInputData input)
     {
-        if (isJumping) return;
+        if (isJumping || isAttacking) return;
         bool blocking = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.Block);
-        if (blocking && !isBlocking)
-        {
+        if (blocking)
             isBlocking = true;
-            netAnimator.SetTrigger("Block");
-            rb.linearVelocity = Vector3.zero;
-        }
-        else if (!blocking)
+        else
         {
             isBlocking = false;
-            netAnimator.SetTrigger("Idle");
         }
+
     }
 
     void ResetCombo()
@@ -271,20 +298,28 @@ public class OnlinePlayerCombat : NetworkBehaviour
         animator.SetInteger("ComboStep", comboStep);
         comboTimer = 0f;
     }
-
-    public void TriggerDefeat()
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_TriggerDefeat()
     {
         isRoundOver = true;
         netAnimator.SetTrigger("Defeat");
     }
 
-    public void TriggerVictory()
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_TriggerBlock()
+    {
+        netAnimator.SetTrigger("Block");
+        isBlocking = false;
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_TriggerVictory()
     {
         isRoundOver = true;
         netAnimator.SetTrigger("Victory");
     }
 
-    void OnCollisionEnter(Collision collision)
+    /*void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Stage"))
         {
@@ -292,11 +327,35 @@ public class OnlinePlayerCombat : NetworkBehaviour
             netAnimator.SetTrigger("Land");
         }
     }
-
+    */
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_TriggerHitStun()
+    {
+        netAnimator.SetTrigger("HitStun");
+    }
     public void EnableRightPunchHitbox() => RightPunchHitbox.SetActive(true);
     public void DisableRightPunchHitbox() => RightPunchHitbox.SetActive(false);
     public void EnableLeftFootHitbox() => LeftFootHitbox.SetActive(true);
     public void DisableLeftFootHitbox() => LeftFootHitbox.SetActive(false);
     public void EnableRightFootHitbox() => RightFootHitbox.SetActive(true);
     public void DisableRightFootHitbox() => RightFootHitbox.SetActive(false);
+
+    public void BeforeUpdate()
+    {
+
+        if (resetInput)
+        {
+            resetInput = false;
+            accumulatedInput = default;
+        }
+
+        if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
+        {
+            NetworkButtons buttons = default;
+            buttons.Set(FusionConnection.PlayerButtons.Attack, true);
+            accumulatedInput.Buttons = new NetworkButtons(accumulatedInput.Buttons.Bits | buttons.Bits);
+        }
+
+    }
+
 }

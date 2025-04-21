@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6627886107734698922}
   - component: {fileID: 7354400529697172875}
-  - component: {fileID: 587674452898571480}
+  - component: {fileID: 1486266811985780388}
   m_Layer: 0
   m_Name: RightPunchHitBox
   m_TagString: Untagged
@@ -54,7 +54,7 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0.14, z: 0}
---- !u!114 &587674452898571480
+--- !u!114 &1486266811985780388
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -63,7 +63,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3885088912587701252}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd93bf73f6b647b43a35a0db8e33073c, type: 3}
+  m_Script: {fileID: 11500000, guid: 52a4930d00d77524ea66b689de0a8070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10
@@ -78,7 +78,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5198580235234944063}
   - component: {fileID: 6409711371099763178}
-  - component: {fileID: 5431967600979793615}
+  - component: {fileID: 9057973142035552495}
   m_Layer: 0
   m_Name: RightFootHitbox
   m_TagString: Untagged
@@ -122,7 +122,7 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5431967600979793615
+--- !u!114 &9057973142035552495
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,7 +131,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5780716558531504742}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd93bf73f6b647b43a35a0db8e33073c, type: 3}
+  m_Script: {fileID: 11500000, guid: 52a4930d00d77524ea66b689de0a8070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10
@@ -146,7 +146,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1497491891856355180}
   - component: {fileID: 1250380982434954818}
-  - component: {fileID: 2786126649790062491}
+  - component: {fileID: 4204117232263755626}
   m_Layer: 0
   m_Name: LeftFootHitbox
   m_TagString: Untagged
@@ -190,7 +190,7 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.3
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2786126649790062491
+--- !u!114 &4204117232263755626
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -199,7 +199,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8727007953608774275}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd93bf73f6b647b43a35a0db8e33073c, type: 3}
+  m_Script: {fileID: 11500000, guid: 52a4930d00d77524ea66b689de0a8070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10
@@ -311,16 +311,13 @@ PrefabInstance:
       addedObject: {fileID: -2961199470142951394}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 91e10562e5b3f614db8b5c3e28a6782a, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 357710750220748280}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 91e10562e5b3f614db8b5c3e28a6782a, type: 3}
-      insertIndex: -1
       addedObject: {fileID: -1130581750122422018}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 91e10562e5b3f614db8b5c3e28a6782a, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -6844420400253631764}
+      addedObject: {fileID: 177638940448963049}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 91e10562e5b3f614db8b5c3e28a6782a, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7813737627088286294}
+      addedObject: {fileID: -1477326210518911533}
     - targetCorrespondingSourceObject: {fileID: 3135921509060577837, guid: 91e10562e5b3f614db8b5c3e28a6782a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8574611167117399391}
@@ -580,13 +577,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0891041531a229c458d045bbf1c21e3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ncc: {fileID: -1477326210518911533}
+  speed: 5
+  jump: 5
   comboResetTime: 0.5
   LeftFootHitbox: {fileID: 8727007953608774275}
   RightFootHitbox: {fileID: 5780716558531504742}
   RightPunchHitbox: {fileID: 3885088912587701252}
   opponent: {fileID: 4740592187874931610}
-  moveSpeed: 5
-  jumpForce: 7
+  moveSpeed: 7
+  isBlocking: 0
 --- !u!54 &6438273040381933489
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -655,26 +655,12 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -5847575053387032801}
-  - {fileID: 357710750220748280}
   - {fileID: -1130581750122422018}
+  - {fileID: -1477326210518911533}
+  - {fileID: 4204117232263755626}
+  - {fileID: 9057973142035552495}
+  - {fileID: 1486266811985780388}
   ForceRemoteRenderTimeframe: 0
---- !u!114 &357710750220748280
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5368897510116337952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _stateAuthorityChangeErrorCorrectionDelta: 0
-  SyncScale: 0
-  SyncParent: 0
-  _autoAOIOverride: 1
-  DisableSharedModeInterpolation: 0
 --- !u!114 &-1130581750122422018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -689,11 +675,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Animator: {fileID: 1669106681083800032}
   ApplyTiming: 0
-  SyncSettings: 79
+  SyncSettings: 127
   StateHashes: 00000000aa26b9ee99959cd96024ba86c5605d39b7972b005c54a3fd8d9f80a909bc5646df1a621ffcaa61b99ca371c52c52ce9b0dda2c773e690940a37eb290138f0dce495d63f853cc59126313c9dfee21b6f18b7cfd670f5f2b88305212d913e2117f87f890ef22bc7750c63906bf421ad050b06b4e9bad6c89dcc1017c632f63b416
   TriggerHashes: 000000002a909f722b1a167c28a9810706e0471177f2515826b8da42e67a3208c63906bf335f060fd15d23bb
-  TotalWords: 4
---- !u!114 &-6844420400253631764
+  TotalWords: 6
+--- !u!143 &177638940448963049
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5368897510116337952}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 0.1
+  m_Radius: 0.1
+  m_SlopeLimit: 45
+  m_StepOffset: 0.1
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-1477326210518911533
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -702,50 +713,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 5368897510116337952}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: 378411a89480da345945c2f888327a2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AuthorityMode: 1
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
-  SlerpPosition: 0
---- !u!114 &7813737627088286294
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5368897510116337952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkRigidbodyBaseExpanded: 0
-  UseRigidBodyForMotion: 1
-  AutoUpdateKinematicState: 1
-  AutoSetKinematicOnDespawn: 1
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  gravity: -9.8
+  jumpImpulse: 8
+  acceleration: 10
+  braking: 10
+  maxSpeed: 5
+  rotationSpeed: 0
 --- !u!4 &6914963649321790393 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: 91e10562e5b3f614db8b5c3e28a6782a, type: 3}

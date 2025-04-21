@@ -14,8 +14,10 @@ public class healthBar : MonoBehaviour
     public float health;
     private float lerpSpeed = 0.05f;
     public PlayerCombat playerCombat;
-    public PlayerCombat opponentCombat;
+    public Player2CombatScript opponentCombat;
+    public healthBar playerHealth;
     public healthBar opponentHealth;
+
     public GameObject winScreen;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -37,16 +39,47 @@ public class healthBar : MonoBehaviour
             easeHealthSlider.value = Mathf.Lerp(easeHealthSlider.value, health, lerpSpeed);
         }
     }
-    public void takeDamage(float damage)
+    public void takeDamage(float damage, bool isPlayer2)
     {
-        health -= damage;
-        playerCombat.TriggerHitStun();
-        if (health <= 0)
+        if (isPlayer2 == true)
         {
-            playerCombat.TriggerDefeat();
-            opponentCombat.TriggerVictory();
-            bool perfect = opponentHealth.health == opponentHealth.maxHealth;
-            StartCoroutine(EndFight(perfect));
+            if (opponentCombat.isBlocking == true)
+            {
+                health -= (damage - 5);
+                opponentCombat.TriggerBlock();
+            }
+            else
+            {
+                health -= damage;
+                opponentCombat.TriggerHitStun();
+            }
+            if (health <= 0)
+            {
+                playerCombat.TriggerVictory();
+                opponentCombat.TriggerDefeat();
+                bool perfect = playerHealth.health == playerHealth.maxHealth;
+                StartCoroutine(EndFight(perfect));
+            }
+        }
+        else
+        {
+            if (playerCombat.isBlocking == true)
+            {
+                health -= (damage - 5);
+                playerCombat.TriggerBlock();
+            }
+            else
+            {
+                health -= damage;
+                playerCombat.TriggerHitStun();
+            }
+            if (health <= 0)
+            {
+                playerCombat.TriggerDefeat();
+                opponentCombat.TriggerVictory();
+                bool perfect = opponentHealth.health == opponentHealth.maxHealth;
+                StartCoroutine(EndFight(perfect));
+            }
         }
     }
 
@@ -56,7 +89,7 @@ public class healthBar : MonoBehaviour
         {
 
             yield return new WaitForSeconds(2f);
-            if (gameObject.name.Contains("Y Bot"))
+            if (playerHealth.health == 0)
                 winScreen.GetComponent<Text>().text = "PLAYER 2 WINS!";
             else
             {

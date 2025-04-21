@@ -7,16 +7,19 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using System.Buffers;
 
 namespace Csluder2.FusionWork
 {
 
-    public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks
+    public class FusionConnection : MonoBehaviour, INetworkRunnerCallbacks //IBeforeUpdate
 
     {
         [HideInInspector] public NetworkRunner runner;
         public static FusionConnection instance;
         [SerializeField] NetworkObject playerPrefab;
+        private bool resetInput;
 
         private string _playerName = "";
 
@@ -29,7 +32,7 @@ namespace Csluder2.FusionWork
         public Button refreshButton;
         public Transform sessionListContent;
         public GameObject sessionEntryPrefab;
-
+        private PlayerInputData accumulatedInput;
         public Boolean firstLobby = false;
         private void Awake()
         {
@@ -41,6 +44,7 @@ namespace Csluder2.FusionWork
         public struct PlayerInputData : INetworkInput
         {
             public NetworkButtons Buttons;
+            public Vector2 Direction;
         }
 
         public enum PlayerButtons
@@ -100,7 +104,7 @@ namespace Csluder2.FusionWork
             {
                 GameMode = GameMode.Shared,
                 SessionName = randomSessionName,
-                PlayerCount = 2
+                PlayerCount = 2,
             });
         }
         public void OnConnectedToServer(NetworkRunner runner)
@@ -141,15 +145,16 @@ namespace Csluder2.FusionWork
         public void OnInput(NetworkRunner runner, NetworkInput input)
         {
             var playerInput = new PlayerInputData();
-
             playerInput.Buttons.Set((int)PlayerButtons.MoveLeft, Input.GetKey(KeyCode.A));
             playerInput.Buttons.Set((int)PlayerButtons.MoveRight, Input.GetKey(KeyCode.D));
             playerInput.Buttons.Set((int)PlayerButtons.Jump, Input.GetKey(KeyCode.W));
             playerInput.Buttons.Set((int)PlayerButtons.Attack, Input.GetKey(KeyCode.P));
-            playerInput.Buttons.Set((int)PlayerButtons.Block, Input.GetKey(KeyCode.B));
+            playerInput.Buttons.Set((int)PlayerButtons.Block, Input.GetKey(KeyCode.O));
             playerInput.Buttons.Set((int)PlayerButtons.Crouch, Input.GetKey(KeyCode.S));
-
             input.Set(playerInput);
+            //accumulatedInput.Direction.Normalize();
+            //input.Set(accumulatedInput);
+            //resetInput = true;
         }
 
         public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
@@ -176,7 +181,7 @@ namespace Csluder2.FusionWork
             if (runner.SessionInfo.PlayerCount == 2)
             {
                 Debug.Log("Two Players are in the room, loading FightingStage");
-                runner.LoadScene(SceneRef.FromIndex(5));
+                runner.LoadScene(SceneRef.FromIndex(8));
 
             }
 
@@ -207,6 +212,7 @@ namespace Csluder2.FusionWork
 
             // Every client should spawn their own character
             StartCoroutine(SpawnPlayer(runner));
+
         }
 
         private IEnumerator SpawnPlayer(NetworkRunner runner)
@@ -217,6 +223,7 @@ namespace Csluder2.FusionWork
             Quaternion spawnRot = runner.LocalPlayer.PlayerId == 1 ? Quaternion.Euler(0, 90, 0) : Quaternion.Euler(0, -90, 0);
 
             runner.Spawn(playerPrefab, spawnPos, spawnRot, runner.LocalPlayer);
+
         }
 
         public void OnSceneLoadStart(NetworkRunner runner)
