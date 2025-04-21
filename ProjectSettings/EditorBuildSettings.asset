@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/OnlineMenu.unity
     guid: 1b5bef63b8bf90f42bd35e983fb51b6e
+  - enabled: 1
+    path: Assets/Scenes/OnlineFightingStage.unity
+    guid: e50a5a8c51d215c43885c952a99d4371
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

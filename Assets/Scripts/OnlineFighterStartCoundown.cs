@@ -1,11 +1,12 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using Fusion;
 
-public class FightStartCountdown : MonoBehaviour
+public class OnlineFightStartCountdown : NetworkBehaviour
 {
     public Text countdownText;
-    public GameObject player1, player2; // Assign both players in Inspector
+    public OnlinePlayerCombat player1, player2; // Assign both players in Inspector
     public float countdownTime = 3f;
 
     private void Start()
@@ -16,8 +17,8 @@ public class FightStartCountdown : MonoBehaviour
     IEnumerator StartCountdown()
     {
         // Disable Player Movement
-        player1.GetComponent<PlayerCombat>().enabled = false;
-        player2.GetComponent<Player2CombatScript>().enabled = false;
+        player1.GetComponent<OnlinePlayerCombat>().enabled = false;
+        player2.GetComponent<OnlinePlayerCombat>().enabled = false;
 
         for (int i = (int)countdownTime; i > 0; i--)
         {
@@ -32,7 +33,6 @@ public class FightStartCountdown : MonoBehaviour
 
         // Enable Player Movement
         player1.GetComponent<PlayerCombat>().enabled = true;
-        player2.GetComponent<Player2CombatScript>().enabled = true;
+        player2.GetComponent<PlayerCombat>().enabled = true;
     }
 }
-

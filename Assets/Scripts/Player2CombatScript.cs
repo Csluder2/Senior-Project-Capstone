@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerCombat : MonoBehaviour
+public class Player2CombatScript : MonoBehaviour
 {
     private Animator animator;
     private CharacterController controller;
@@ -36,6 +36,7 @@ public class PlayerCombat : MonoBehaviour
 
     void Update()
     {
+        if (isRoundOver) return;
 
         HandleJumping();
         HandleMovement();
@@ -72,9 +73,9 @@ public class PlayerCombat : MonoBehaviour
 
     void HandleAttack()
     {
-        if (isJumping || isBlocking) return;
+        if (isJumping) return;
 
-        if (Input.GetKeyDown(KeyCode.P)) // Attack input
+        if (Input.GetKeyDown(KeyCode.Keypad2)) // Attack input
         {
             Attack();
         }
@@ -113,7 +114,7 @@ public class PlayerCombat : MonoBehaviour
         float opponentDirection = Mathf.Sign(opponent.position.x - transform.position.x);
         Vector3 move = Vector3.zero;
 
-        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D)) // Move Left (Backwards)
+        if (Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.RightArrow)) // Move Left (Backwards)
         {
             moveDirection = -1f;
             move = new Vector3(moveDirection, 0f, 0f) * moveSpeed;
@@ -129,7 +130,7 @@ public class PlayerCombat : MonoBehaviour
                 animator.SetBool("MoveBackward", false);
             }
         }
-        else if (Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A)) // Move Right (Forwards)
+        else if (Input.GetKey(KeyCode.RightArrow) && !Input.GetKey(KeyCode.LeftArrow)) // Move Right (Forwards)
         {
             moveDirection = 1f;
             move = new Vector3(moveDirection, 0f, 0f) * moveSpeed;
@@ -151,7 +152,7 @@ public class PlayerCombat : MonoBehaviour
             animator.SetBool("MoveForward", false);
         }
 
-        if (Input.GetKey(KeyCode.S))
+        if (Input.GetKey(KeyCode.DownArrow))
         {
             isCrouched = true;
             animator.SetBool("Crouch", true);
@@ -170,12 +171,12 @@ public class PlayerCombat : MonoBehaviour
         if (isJumping || isAttacking || isBlocking || isCrouched) return;
 
         float opponentDirection = Mathf.Sign(opponent.position.x - transform.position.x);
-        if (controller.isGrounded && Input.GetKeyDown(KeyCode.W))
+        if (controller.isGrounded && Input.GetKeyDown(KeyCode.UpArrow))
         {
             isJumping = true;
             animator.ResetTrigger("Land");
 
-            if (Input.GetKey(KeyCode.D)) // Forward flip
+            if (Input.GetKey(KeyCode.RightArrow)) // Forward flip
             {
                 if (opponentDirection > 0)
                 {
@@ -188,7 +189,7 @@ public class PlayerCombat : MonoBehaviour
                     velocity = new Vector3(moveSpeed, jumpForce, 0);
                 }
             }
-            else if (Input.GetKey(KeyCode.A)) // Backflip
+            else if (Input.GetKey(KeyCode.LeftArrow)) // Backflip
             {
                 if (opponentDirection > 0)
                 {
@@ -213,13 +214,15 @@ public class PlayerCombat : MonoBehaviour
             isJumping = false;
             velocity.x = 0f;
             animator.SetTrigger("Land");
+
         }
     }
 
     void HandleBlocking()
     {
         if (isJumping || isAttacking) return;
-        if (Input.GetKey(KeyCode.O))
+
+        if (Input.GetKey(KeyCode.Keypad1))
         {
             isBlocking = true;
         }
@@ -250,7 +253,6 @@ public class PlayerCombat : MonoBehaviour
     {
 
         animator.SetTrigger("Victory");
-
     }
 
     void EnableRightPunchHitbox() => RightPunchHitbox.SetActive(true);
@@ -261,11 +263,3 @@ public class PlayerCombat : MonoBehaviour
     void DisableRightFootHitbox() => RightFootHitbox.SetActive(false);
     public void TriggerHitStun() => animator.SetTrigger("HitStun");
 }
-
-
-
-
-
-
-
-
