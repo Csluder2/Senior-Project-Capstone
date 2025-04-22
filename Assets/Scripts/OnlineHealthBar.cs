@@ -103,8 +103,7 @@ public class OnlineHealthBar : NetworkBehaviour
                 {
                     Debug.Log("WINNER IS PLAYER 1");
 
-                    // Optional: could notify others via RPC or just let them determine outcome locally
-                    //bool perfect = opponentHealth.health == opponentHealth.maxHealth;
+
                     bool perfect = false;
                     bool player1Win = true;
                     playerCombat.RPC_TriggerVictory();
@@ -133,8 +132,6 @@ public class OnlineHealthBar : NetworkBehaviour
                 {
                     Debug.Log("WINNER IS PLAYER 2");
 
-                    // Optional: could notify others via RPC or just let them determine outcome locally
-                    //bool perfect = opponentHealth.health == opponentHealth.maxHealth;
                     bool perfect = false;
                     bool player1Win = false;
                     playerCombat.RPC_TriggerDefeat();
@@ -161,10 +158,10 @@ public class OnlineHealthBar : NetworkBehaviour
 
             yield return new WaitForSeconds(2f);
             if (player1Win == true)
-                winScreen.GetComponent<Text>().text = "PLAYER 1 WINS!";
+                RPC_DisplayVictoryText("PLAYER 1 WINS!");
             else
             {
-                winScreen.GetComponent<Text>().text = "PLAYER 2 WINS!";
+                RPC_DisplayVictoryText("PLAYER 2 WINS!");
             }
             yield return new WaitForSeconds(2f);
             if (perfect)
@@ -174,6 +171,13 @@ public class OnlineHealthBar : NetworkBehaviour
         }
         yield return new WaitForSeconds(2f);
         Runner.LoadScene(SceneRef.FromIndex(2));
+
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void RPC_DisplayVictoryText(string victorText)
+    {
+        if (winScreen != null)
+            winScreen.GetComponent<Text>().text = victorText;
     }
 
 

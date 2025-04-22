@@ -9,6 +9,7 @@ using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 using System.Buffers;
+using TMPro;
 
 namespace Csluder2.FusionWork
 {
@@ -19,6 +20,11 @@ namespace Csluder2.FusionWork
         [HideInInspector] public NetworkRunner runner;
         public static FusionConnection instance;
         [SerializeField] NetworkObject playerPrefab;
+        private bool isHost = false;
+
+        public GameObject Hostwaiting;
+
+        public GameObject Hostjoining;
         private bool resetInput;
 
         private string _playerName = "";
@@ -92,6 +98,8 @@ namespace Csluder2.FusionWork
         public async void CreateSession()
         {
             Scrollview.SetActive(false);
+            Hostwaiting.SetActive(true);
+            isHost = true;
             int randomInt = UnityEngine.Random.Range(1000, 9999);
             string randomSessionName = _playerName + "s  Room-" + randomInt.ToString();
             if (runner == null)
@@ -180,8 +188,13 @@ namespace Csluder2.FusionWork
 
             if (runner.SessionInfo.PlayerCount == 2)
             {
+                if (runner.IsSceneAuthority)
+                {
+                    Hostwaiting.SetActive(false);
+                    Hostjoining.SetActive(true);
+                }
                 Debug.Log("Two Players are in the room, loading FightingStage");
-                runner.LoadScene(SceneRef.FromIndex(8));
+                runner.LoadScene(SceneRef.FromIndex(8), LoadSceneMode.Single);
 
             }
 
@@ -189,9 +202,10 @@ namespace Csluder2.FusionWork
 
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
         {
-            runner.LoadScene(SceneRef.FromIndex(7));
+            runner.LoadScene(SceneRef.FromIndex(7), LoadSceneMode.Single);
             _playerName = null;
-            runner = null;
+            isHost = false;
+            runner.Shutdown();
         }
         public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)
         {
@@ -211,7 +225,12 @@ namespace Csluder2.FusionWork
             }
 
             // Every client should spawn their own character
-            StartCoroutine(SpawnPlayer(runner));
+            if (SceneManager.GetActiveScene().name == "OnlineFightingStage")
+                StartCoroutine(SpawnPlayer(runner));
+
+            if (SceneManager.GetActiveScene().name == "MainMenu")
+                runner.Shutdown();
+
 
         }
 
@@ -219,7 +238,7 @@ namespace Csluder2.FusionWork
         {
             yield return new WaitForSeconds(0.1f); // Let the scene settle a bit
             Debug.Log("This clients player ID is" + runner.LocalPlayer.PlayerId);
-            Vector3 spawnPos = runner.LocalPlayer.PlayerId == 1 ? new Vector3(-3, 1, 0) : new Vector3(3, 1, 0);
+            Vector3 spawnPos = runner.LocalPlayer.PlayerId == 1 ? new Vector3(-3, 2, 0) : new Vector3(3, 2, 0);
             Quaternion spawnRot = runner.LocalPlayer.PlayerId == 1 ? Quaternion.Euler(0, 90, 0) : Quaternion.Euler(0, -90, 0);
 
             runner.Spawn(playerPrefab, spawnPos, spawnRot, runner.LocalPlayer);
@@ -286,5 +305,6 @@ namespace Csluder2.FusionWork
 
     }
 }
+
 
 

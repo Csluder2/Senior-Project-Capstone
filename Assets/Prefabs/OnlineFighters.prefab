@@ -230,7 +230,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 91e10562e5b3f614db8b5c3e28a6782a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 91e10562e5b3f614db8b5c3e28a6782a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -586,6 +586,7 @@ MonoBehaviour:
   RightPunchHitbox: {fileID: 3885088912587701252}
   opponent: {fileID: 4740592187874931610}
   moveSpeed: 7
+  gravity: -20
   isBlocking: 0
 --- !u!54 &6438273040381933489
 Rigidbody:
@@ -721,7 +722,7 @@ MonoBehaviour:
   jumpImpulse: 8
   acceleration: 10
   braking: 10
-  maxSpeed: 5
+  maxSpeed: 10
   rotationSpeed: 0
 --- !u!4 &6914963649321790393 stripped
 Transform:
