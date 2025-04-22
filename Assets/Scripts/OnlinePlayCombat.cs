@@ -4,6 +4,7 @@ using Unity.Netcode.Components;
 using Csluder2.FusionWork;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.UIElements;
 
 
 
@@ -14,9 +15,8 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
     private Rigidbody rb;
     private FusionConnection.PlayerInputData accumulatedInput;
     private bool resetInput;
-
     [SerializeField] private NetworkCharacterController ncc;
-    [SerializeField] private float speed = 5f;
+    [SerializeField] private float speed;
     [SerializeField] private float jump = 5f;
 
 
@@ -29,12 +29,15 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
     public GameObject RightPunchHitbox;
     public Transform opponent;
 
-    public float moveSpeed = 5f;
+    public float moveSpeed = 4f;
+    public float gravity = -20f;
+    private Vector3 velocity = Vector3.zero;
     private bool isJumping = false;
     public bool isBlocking = false;
     private bool isAttacking = false;
     private bool isCrouched = false;
     private bool isRoundOver = false;
+    private bool didMove;
     [Networked] private NetworkButtons PreviousButtons { get; set; }
 
     public override void Spawned()
@@ -74,7 +77,7 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
                 }
             }
 
-            yield return new WaitForSeconds(1.5f); // check again after delay
+            yield return new WaitForSeconds(2f); // check again after delay
         }
     }
 
@@ -82,22 +85,39 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
     {
         if (!HasStateAuthority)
             return;
+
         if (GetInput(out FusionConnection.PlayerInputData input))
         {
 
 
             HandleJumping(input);
-            HandleMovement(input);
+            HandleMovement(input, ref didMove);
             HandleBlocking(input);
             HandleAttack(input);
 
         }
         HandleFacingDirection();
-        if (!isJumping && ncc != null)
+
+        if (!ncc.Grounded)
+        {
+            velocity.y += gravity * Runner.DeltaTime;
+        }
+        else if (!isJumping)
+        {
+            velocity.y = -1f;
+        }
+
+
+        ncc.Move(velocity * Runner.DeltaTime);
+
+
+        if (!isJumping && !didMove)
         {
             ncc.Move(Vector3.zero);
         }
     }
+
+
 
     void HandleFacingDirection()
     {
@@ -117,8 +137,8 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
     {
         if (isJumping) return;
 
-        bool attacking = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.Attack);
-        if (attacking)
+
+        if (input.Buttons.WasPressed(PreviousButtons, (int)FusionConnection.PlayerButtons.Attack))
         {
             Attack();
         }
@@ -132,6 +152,8 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
                 isAttacking = false;
             }
         }
+
+        PreviousButtons = input.Buttons;
     }
 
     void Attack()
@@ -149,19 +171,21 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
         }
     }
 
-    void HandleMovement(FusionConnection.PlayerInputData input)
+    void HandleMovement(FusionConnection.PlayerInputData input, ref bool didMove)
     {
         if (!ncc.Grounded || isAttacking) return;
 
-
-        float moveDirection = 1f;
+        float moveDirection = 0f;
+        Vector3 HorizontalMovement = Vector3.zero;
         float opponentDirection = Mathf.Sign(opponent.position.x - transform.position.x);
         bool moveLeft = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.MoveLeft);
         bool moveRight = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.MoveRight);
         bool crouch = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.Crouch);
         if (moveLeft && !moveRight)
         {
-            moveDirection = -moveSpeed;
+            moveDirection = -1f;
+            HorizontalMovement = new Vector3(moveDirection, 0, 0);
+            didMove = true;
 
             if (opponentDirection > 0)
             {
@@ -173,10 +197,13 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
                 animator.SetBool("MoveForward", true);
                 animator.SetBool("MoveBackward", false);
             }
+
         }
         else if (moveRight && !moveLeft)
         {
-            moveDirection = moveSpeed;
+            moveDirection = 1f;
+            HorizontalMovement = new Vector3(moveDirection, 0, 0);
+            didMove = true;
 
             if (opponentDirection > 0)
             {
@@ -187,12 +214,15 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
             {
                 animator.SetBool("MoveBackward", true);
                 animator.SetBool("MoveForward", false);
+
             }
+
         }
         else
         {
             animator.SetBool("MoveBackward", false);
             animator.SetBool("MoveForward", false);
+            didMove = false;
         }
 
         if (crouch)
@@ -205,14 +235,15 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
             isCrouched = false;
             animator.SetBool("Crouch", false);
         }
-        Vector3 HorizontalMovement = new Vector3(moveDirection, 0f, 0) * Runner.DeltaTime;
-        ncc.Move(HorizontalMovement);
+        //Vector3 HorizontalMovement = new Vector3(moveDirection * speed, 0f, 0f);
+        ncc.Move(HorizontalMovement * Runner.DeltaTime);
+
     }
 
 
     void HandleJumping(FusionConnection.PlayerInputData input)
     {
-        if (isJumping || isAttacking || isBlocking || isCrouched) return;
+        if (isAttacking || isBlocking || isCrouched) return;
         bool jumping = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.Jump);
         bool moveLeft = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.MoveLeft);
         bool moveRight = input.Buttons.IsSet((int)FusionConnection.PlayerButtons.MoveRight);
@@ -257,22 +288,12 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
 
             }
             ncc.Jump();
-
-        }
-        if (!ncc.Grounded)
-        {
-            float airspeed = 8f;
-            float moveDir = 0f;
-            if (moveLeft)
-                moveDir = -2f;
-            if (moveRight)
-                moveDir = 2f;
-
-            Vector3 airMovement = new Vector3(moveDir * airspeed, 0f, 0f);
-            ncc.Move(airMovement * Runner.DeltaTime);
+            isJumping = true;
+            animator.ResetTrigger("Land");
         }
 
-        if (ncc.Grounded)
+
+        if (ncc.Grounded && isJumping)
         {
             isJumping = false;
             netAnimator.SetTrigger("Land");
@@ -303,6 +324,7 @@ public class OnlinePlayerCombat : NetworkBehaviour, IBeforeUpdate
     {
         isRoundOver = true;
         netAnimator.SetTrigger("Defeat");
+
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
